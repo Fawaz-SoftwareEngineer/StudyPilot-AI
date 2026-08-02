@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from app.api.users import router as users_router
 from app.database.init_db import init_db
 
 app = FastAPI(
@@ -11,6 +12,9 @@ app = FastAPI(
 @app.on_event("startup")
 def startup():
     init_db()
+
+
+app.include_router(users_router)
 
 
 @app.get("/")
