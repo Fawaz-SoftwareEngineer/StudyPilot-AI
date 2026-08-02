@@ -1,21 +1,20 @@
 from fastapi import FastAPI
 
+from app.database.init_db import init_db
+
 app = FastAPI(
-    title="StudyPilot AI API",
-    description="Backend API for StudyPilot AI",
-    version="0.1.0"
+    title="StudyPilot AI",
+    version="0.1.0",
 )
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
+
 
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to StudyPilot AI 🚀",
-        "status": "running",
-        "version": "0.1.0"
-    }
-
-@app.get("/health")
-def health():
-    return {
-        "status": "healthy"
+        "message": "Welcome to StudyPilot AI 🚀"
     }
