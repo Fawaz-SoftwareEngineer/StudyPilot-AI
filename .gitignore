@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# Node.js
+node_modules/
+
+# Logs
+*.log
+
+# Build
+dist/
+build/
+
+# Test
+.pytest_cache/
+.coverage
+
+# Operating System
+.DS_Store
+*~
