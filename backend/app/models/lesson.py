@@ -7,10 +7,12 @@ from app.core.database import Base
 class Lesson(Base):
     __tablename__ = "lessons"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
 
-    course_id: Mapped[int] = mapped_column(
-        ForeignKey("courses.id")
+    module_id: Mapped[int] = mapped_column(
+        ForeignKey("modules.id", ondelete="CASCADE")
     )
 
     title: Mapped[str] = mapped_column(
@@ -30,19 +32,23 @@ class Lesson(Base):
         default=25,
     )
 
-    course = relationship(
-        "Course",
+    # Relationship to Module
+    module = relationship(
+        "Module",
         back_populates="lessons",
     )
 
+    # Student progress
     progress = relationship(
-    "LessonProgress",
-    back_populates="lesson",
-    cascade="all, delete-orphan",
+        "LessonProgress",
+        back_populates="lesson",
+        cascade="all, delete-orphan",
     )
 
+    # One lesson → One quiz
     quiz = relationship(
-    "Quiz",
-    back_populates="lesson",
-    uselist=False,
+        "Quiz",
+        back_populates="lesson",
+        uselist=False,
+        cascade="all, delete-orphan",
     )

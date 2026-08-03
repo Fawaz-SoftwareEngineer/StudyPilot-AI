@@ -36,13 +36,16 @@ class Module(Base):
         default=datetime.utcnow,
     )
 
+    # Relationship to Course
     course = relationship(
         "Course",
         back_populates="modules",
     )
 
+    # Relationship to Lessons
     lessons = relationship(
         "Lesson",
         back_populates="module",
         cascade="all, delete-orphan",
+        order_by="Lesson.lesson_order",
     )
