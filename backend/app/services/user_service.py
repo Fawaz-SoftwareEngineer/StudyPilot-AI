@@ -21,8 +21,12 @@ def create_user(db: Session, user: UserCreate):
         hashed_password=hash_password(user.password),
         country=user.country,
         education_level=user.education_level,
+        role="student",
         xp=0,
         level=1,
+        coins=100,
+        streak=0,
+        completed_lessons=0,
     )
 
     db.add(new_user)

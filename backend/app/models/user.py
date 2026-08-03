@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -25,11 +26,34 @@ class User(Base):
 
     education_level: Mapped[str] = mapped_column(String(50))
 
+    role: Mapped[str] = mapped_column(
+        String(20),
+        default="student",
+    )
+
     xp: Mapped[int] = mapped_column(Integer, default=0)
 
     level: Mapped[int] = mapped_column(Integer, default=1)
 
+    coins: Mapped[int] = mapped_column(Integer, default=100)
+
+    streak: Mapped[int] = mapped_column(Integer, default=0)
+
+    completed_lessons: Mapped[int] = mapped_column(Integer, default=0)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
+    )
+
+    lesson_progress = relationship(
+    "LessonProgress",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
+    quiz_attempts = relationship(
+    "QuizAttempt",
+    back_populates="user",
+    cascade="all, delete-orphan",
     )

@@ -24,9 +24,17 @@ class UserResponse(BaseModel):
 
     education_level: str
 
+    role: str
+
     xp: int
 
     level: int
+
+    coins: int
+
+    streak: int
+
+    completed_lessons: int
 
     model_config = {
         "from_attributes": True
