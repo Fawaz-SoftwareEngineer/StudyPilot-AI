@@ -4,10 +4,9 @@ from pydantic import BaseModel
 class QuizCreate(BaseModel):
     lesson_id: int
     title: str
-    description: str
-    passing_score: int = 70
+    description: str = ""
     xp_reward: int = 50
-    coins_reward: int = 20
+    passing_percentage: int = 70
 
 
 class QuizResponse(BaseModel):
@@ -15,9 +14,8 @@ class QuizResponse(BaseModel):
     lesson_id: int
     title: str
     description: str
-    passing_score: int
     xp_reward: int
-    coins_reward: int
+    passing_percentage: int
 
     class Config:
         from_attributes = True

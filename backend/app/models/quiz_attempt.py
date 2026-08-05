@@ -14,11 +14,21 @@ class QuizAttempt(Base):
     )
 
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id")
+        ForeignKey("users.id", ondelete="CASCADE")
     )
 
     quiz_id: Mapped[int] = mapped_column(
-        ForeignKey("quizzes.id")
+        ForeignKey("quizzes.id", ondelete="CASCADE")
+    )
+
+    attempt_number: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+    )
+
+    time_taken_seconds: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
     )
 
     score: Mapped[int] = mapped_column(

@@ -30,6 +30,11 @@ class Quiz(Base):
         default=50,
     )
 
+    passing_percentage: Mapped[int] = mapped_column(
+        Integer,
+        default=70,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,

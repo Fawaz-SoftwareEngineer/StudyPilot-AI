@@ -57,3 +57,12 @@ class User(Base):
     back_populates="user",
     cascade="all, delete-orphan",
     )
+
+    course_progress = relationship(
+    "CourseProgress",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
+    
+

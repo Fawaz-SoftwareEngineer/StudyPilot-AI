@@ -20,9 +20,8 @@ def create_quiz(db: Session, quiz: QuizCreate):
         lesson_id=quiz.lesson_id,
         title=quiz.title,
         description=quiz.description,
-        passing_score=quiz.passing_score,
         xp_reward=quiz.xp_reward,
-        coins_reward=quiz.coins_reward,
+        passing_percentage=quiz.passing_percentage,
     )
 
     db.add(new_quiz)
@@ -33,7 +32,10 @@ def create_quiz(db: Session, quiz: QuizCreate):
 
 
 def get_all_quizzes(db: Session):
-    return db.query(Quiz).all()
+    return (
+        db.query(Quiz)
+        .all()
+    )
 
 
 def get_quiz(db: Session, quiz_id: int):

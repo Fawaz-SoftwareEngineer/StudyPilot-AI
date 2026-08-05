@@ -35,3 +35,9 @@ class Course(Base):
     back_populates="course",
     cascade="all, delete-orphan",
     )
+
+    progress = relationship(
+    "CourseProgress",
+    back_populates="course",
+    cascade="all, delete-orphan",
+    )

@@ -14,6 +14,14 @@ from app.api.quiz import router as quiz_router
 
 from app.api.question import router as question_router
 
+from app.api.lesson import router as lesson_router
+
+from app.api import quiz_attempt
+
+from app.api import module
+
+from app.api import question_option
+
 app = FastAPI(
     title="StudyPilot AI",
     version="0.1.0",
@@ -32,6 +40,14 @@ app.include_router(progress_router)
 app.include_router(course_router)
 app.include_router(quiz_router)
 app.include_router(question_router)
+app.include_router(lesson_router)
+app.include_router(question_option.router)
+
+app.include_router(
+    quiz_attempt.router
+)
+
+app.include_router(module.router)
 
 @app.get("/")
 def root():
