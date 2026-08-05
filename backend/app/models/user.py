@@ -64,5 +64,11 @@ class User(Base):
     cascade="all, delete-orphan",
     )
 
+    achievements = relationship(
+    "UserAchievement",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
     
 

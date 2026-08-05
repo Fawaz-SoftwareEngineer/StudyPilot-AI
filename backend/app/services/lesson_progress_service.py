@@ -6,6 +6,9 @@ from app.models.lesson import Lesson
 from app.models.lesson_progress import LessonProgress
 from app.models.user import User
 
+from app.services.achievement_service import unlock_achievement
+from app.services.course_progress_service import update_course_progress
+
 
 def complete_lesson(
     db: Session,
@@ -13,10 +16,14 @@ def complete_lesson(
     lesson_id: int,
 ):
     """
-    Marks a lesson as completed and rewards the user.
+    Marks a lesson as completed, rewards the user,
+    updates course progress, and unlocks achievements.
     """
 
-    # Find the lesson
+    # -------------------------
+    # Find lesson
+    # -------------------------
+
     lesson = (
         db.query(Lesson)
         .filter(Lesson.id == lesson_id)
@@ -26,7 +33,10 @@ def complete_lesson(
     if lesson is None:
         raise ValueError("Lesson not found")
 
-    # Check if lesson has already been completed
+    # -------------------------
+    # Prevent duplicate completion
+    # -------------------------
+
     existing_progress = (
         db.query(LessonProgress)
         .filter(
@@ -39,7 +49,10 @@ def complete_lesson(
     if existing_progress:
         raise ValueError("Lesson already completed")
 
+    # -------------------------
     # Create lesson progress
+    # -------------------------
+
     progress = LessonProgress(
         user_id=current_user.id,
         lesson_id=lesson.id,
@@ -47,21 +60,45 @@ def complete_lesson(
         completed_at=datetime.now(timezone.utc),
     )
 
-    # Award XP
+    db.add(progress)
+
+    # -------------------------
+    # Rewards
+    # -------------------------
+
     current_user.xp += lesson.xp_reward
+    current_user.coins += 10
+    current_user.completed_lessons += 1
 
     # Update level
     current_user.level = (current_user.xp // 100) + 1
 
-    # Award coins
-    current_user.coins += 10
+    # -------------------------
+    # Unlock achievements
+    # -------------------------
 
-    # Increment completed lessons
-    current_user.completed_lessons += 1
+    if current_user.completed_lessons == 1:
+        unlock_achievement(
+            db=db,
+            user=current_user,
+            achievement_name="First Lesson",
+        )
+
+    # -------------------------
+    # Update course progress
+    # -------------------------
+
+    update_course_progress(
+        db=db,
+        user_id=current_user.id,
+        course_id=lesson.module.course_id,
+    )
+
+    # -------------------------
+    # Save everything
+    # -------------------------
 
     try:
-        db.add(progress)
-
         db.commit()
 
         db.refresh(progress)
