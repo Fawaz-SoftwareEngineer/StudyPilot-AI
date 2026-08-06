@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,11 @@ from app.models.user import User
 from app.schemas.quiz_attempt import QuizSubmission, QuizResult
 
 from app.services.course_progress_service import update_course_progress
+from app.services.achievement_service import unlock_achievement
+
+from app.models.quiz_attempt_answer import QuizAttemptAnswer
+
+from app.services.coin_history_service import add_coin_history
 
 COINS_PER_QUIZ = 20
 
@@ -136,13 +141,15 @@ def submit_quiz(
         .first()
     )
 
-    if passed and first_pass is None:
+    is_first_success = (
+    passed
+    and first_pass is None
+    )
 
+    if is_first_success:
         xp_gained = quiz.xp_reward
         coins_gained = COINS_PER_QUIZ
-
     else:
-
         xp_gained = 0
         coins_gained = 0
 
@@ -161,10 +168,50 @@ def submit_quiz(
         xp_earned=xp_gained,
         coins_earned=coins_gained,
         passed=passed,
-        submitted_at=datetime.utcnow(),
+        submitted_at=datetime.now(timezone.utc),
     )
 
     db.add(attempt)
+    db.flush()
+
+    # ---------------------------------
+    # Save every submitted answer
+    # ---------------------------------
+
+    for question in questions:
+
+        selected_option_id = submitted_answers.get(question.id)
+
+        correct_option = (
+            db.query(QuestionOption)
+            .filter(
+            QuestionOption.question_id == question.id,
+            QuestionOption.is_correct == True,
+        )
+        .first()
+        )
+
+        is_correct = (
+            selected_option_id == correct_option.id
+            if correct_option is not None and selected_option_id is not None
+            else False
+        )
+
+        marks_awarded = (
+            question.marks
+            if is_correct
+            else 0
+        )
+
+        answer = QuizAttemptAnswer(
+            quiz_attempt_id=attempt.id,
+            question_id=question.id,
+            selected_option_id=selected_option_id,
+            is_correct=is_correct,
+            marks_awarded=marks_awarded,
+        )
+
+        db.add(answer)
 
     # ---------------------------------
     # Reward user
@@ -174,10 +221,21 @@ def submit_quiz(
 
         current_user.xp += xp_gained
         current_user.coins += coins_gained
+        
+        add_coin_history(
+            db=db,
+            user=current_user,
+            amount=coins_gained,
+            reason="Quiz Completion",
+        )
 
-        current_user.level = (
-            current_user.xp // 100
-        ) + 1
+        current_user.level = (current_user.xp // 100) + 1
+
+        unlock_achievement(
+            db,
+            current_user,
+            "First Quiz",
+        )
 
         progress = (
             db.query(LessonProgress)
@@ -194,7 +252,7 @@ def submit_quiz(
                 user_id=current_user.id,
                 lesson_id=quiz.lesson_id,
                 completed=True,
-                completed_at=datetime.utcnow(),
+                completed_at=datetime.now(timezone.utc),
             )
 
             db.add(progress)
@@ -202,27 +260,32 @@ def submit_quiz(
             current_user.completed_lessons += 1
 
             update_course_progress(
-            db=db,
-            user_id=current_user.id,
-            course_id=quiz.lesson.module.course_id,
+                db=db,
+                user_id=current_user.id,
+                course_id=quiz.lesson.module.course_id,
             )
 
-    db.commit()
+    try:
+        db.commit()
 
-    db.refresh(attempt)
-    db.refresh(current_user)
+        db.refresh(attempt)
+        db.refresh(current_user)
+
+    except Exception:
+        db.rollback()
+        raise
 
     return QuizResult(
-    score=score,
-    total_questions=total_questions,
-    percentage=percentage,
-    passed=passed,
-    xp_gained=xp_gained,
-    coins_gained=coins_gained,
-    attempt_number=attempt_number,
-    message=(
-        "Quiz passed successfully!"
-        if passed
-        else "Quiz failed. Try again."
+        score=score,
+        total_questions=total_questions,
+        percentage=percentage,
+        passed=passed,
+        xp_gained=xp_gained,
+        coins_gained=coins_gained,
+        attempt_number=attempt_number,
+        message=(
+            "Quiz passed successfully!"
+            if passed
+            else "Quiz failed. Try again."
     )
 )

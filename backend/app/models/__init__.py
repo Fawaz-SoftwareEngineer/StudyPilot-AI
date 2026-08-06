@@ -3,3 +3,15 @@ from app.models.lesson_progress import LessonProgress
 from app.models.course_progress import CourseProgress
 from app.models.achievement import Achievement
 from app.models.user_achievement import UserAchievement
+from app.models.xp_history import XPHistory
+from app.models.coin_history import CoinHistory
+from app.models.mission import Mission
+from app.models.user_mission import UserMission
+from app.models.user import User
+from app.models.course import Course
+from app.models.lesson import Lesson
+from app.models.quiz import Quiz
+from app.models.question import Question
+from app.models.question_option import QuestionOption
+from app.models.quiz_attempt import QuizAttempt
+from app.models.quiz_attempt_answer import QuizAttemptAnswer

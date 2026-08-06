@@ -70,5 +70,23 @@ class User(Base):
     cascade="all, delete-orphan",
     )
 
+    xp_history = relationship(
+    "XPHistory",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
+    coin_history = relationship(
+    "CoinHistory",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
+    missions = relationship(
+    "UserMission",
+    back_populates="user",
+    cascade="all, delete-orphan",
+    )
+
     
 

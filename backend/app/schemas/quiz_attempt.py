@@ -17,7 +17,10 @@ class QuizResult(BaseModel):
     total_questions: int
     percentage: int
     passed: bool
+
     xp_gained: int
     coins_gained: int
+
     attempt_number: int
+
     message: str

@@ -24,6 +24,14 @@ from app.api import question_option
 
 from app.api.achievement import router as achievement_router
 
+from app.api.quiz_review import router as quiz_review_router
+
+from app.api import quiz_analytics
+
+from app.api import coin_history
+
+from app.api import mission
+
 app = FastAPI(
     title="StudyPilot AI",
     version="0.1.0",
@@ -45,6 +53,13 @@ app.include_router(question_router)
 app.include_router(lesson_router)
 app.include_router(question_option.router)
 app.include_router(achievement_router)
+app.include_router(quiz_review_router)
+app.include_router(coin_history.router)
+app.include_router(mission.router)
+
+app.include_router(
+    quiz_analytics.router
+)
 
 app.include_router(
     quiz_attempt.router
